@@ -41,4 +41,18 @@ OrderSchema.plugin(mongoosastic, {
   ]
 })
 
-module.exports = mongoose.model("order", OrderSchema)
+var Order = mongoose.model("order", OrderSchema),
+  stream = Order.synchronize(),
+  count = 0
+
+stream.on("data", function(err, doc) {
+  count++
+})
+stream.on("close", function() {
+  console.log("indexed " + count + " documents!")
+})
+stream.on("error", function(err) {
+  console.log(err)
+})
+
+module.exports = Order

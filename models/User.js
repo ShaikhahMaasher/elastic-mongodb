@@ -12,4 +12,19 @@ var UserSchema = new Schema({
 UserSchema.plugin(mongoosastic, {
   host: process.env.ELASTICSEARCH_URL
 })
-module.exports = mongoose.model("user", UserSchema)
+
+var User = mongoose.model("user", UserSchema),
+  stream = User.synchronize(),
+  count = 0
+
+stream.on("data", function(err, doc) {
+  count++
+})
+stream.on("close", function() {
+  console.log("indexed " + count + " documents!")
+})
+stream.on("error", function(err) {
+  console.log(err)
+})
+
+module.exports = User
